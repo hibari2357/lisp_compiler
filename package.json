@@ -1,0 +1,10 @@
+{
+  "name": "daiki",
+  "version": "1.0.0",
+  "description": "Compiler with mal(Make a Lisp) and An Incremental Approach to Compiler Construction",
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.4.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
