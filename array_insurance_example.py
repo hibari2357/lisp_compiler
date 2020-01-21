@@ -7,11 +7,11 @@ struct variant {
 }
 
 
-def search_place(field[2] gps_longi, field[2] gps_lati, field denger_place_longi, field denger_place_lati) -> (variant):
+def search_place(private field[2] gps_longi, private field[2] gps_lati, field denger_place_longi, field denger_place_lati) -> (variant):
     variant res =  variant {type: 1, value: 0}
     bool found = false
     for field i in 0..2 do
-        found = if gps_longi[i] == denger_place_longi && gps_lati[i] == denger_place_lati then true else found fi
+        found = if !found && gps_longi[i] == denger_place_longi && gps_lati[i] == denger_place_lati then true else false fi
         res = if found then variant {type: 0, value: i} else res fi
     endfor
     return res
@@ -19,9 +19,9 @@ def search_place(field[2] gps_longi, field[2] gps_lati, field denger_place_longi
 def calc_rick(field gps_longi, field gps_lati) -> (field):
     // calcurate some score
     field some_score = 30
-    return som_escore
+    return some_score
 
-def main(private field[2] gps_longi, private field[2] gps_lati) -> (field):
+def calc_safe_score(private field[2] gps_longi, private field[2] gps_lati) -> (field):
     field denger_place_longi = 348186736
     field denger_place_lati = 1355238724
 
@@ -30,3 +30,7 @@ def main(private field[2] gps_longi, private field[2] gps_lati) -> (field):
     field safe_score = if index.type == 0 then 100 - calc_rick(gps_longi[index.value], gps_lati[index.value]) else 100 fi
 
     return safe_score
+
+def main(private field[2] gps_longi, private field[2] gps_lati) -> (field):
+    field res = calc_safe_score(gps_longi, gps_lati)
+    return res
