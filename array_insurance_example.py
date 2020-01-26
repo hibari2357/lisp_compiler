@@ -32,5 +32,4 @@ def calc_safe_score(private field[2] gps_longi, private field[2] gps_lati) -> (f
     return safe_score
 
 def main(private field[2] gps_longi, private field[2] gps_lati) -> (field):
-    field res = calc_safe_score(gps_longi, gps_lati)
-    return res
+    return calc_safe_score(gps_longi, gps_lati)

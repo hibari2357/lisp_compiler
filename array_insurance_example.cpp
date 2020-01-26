@@ -16,7 +16,7 @@ int calc_risk(int gps_longi, int gps_lati){
 }
 
 int calc_safe_score(int gps_longi[1000], int gps_lati[1000]){
-    int safe_score = 0;
+    int safe_score = 100;
     int denger_place_longi = 348186736;
     int denger_place_lati = 1355238724;
 
@@ -24,12 +24,14 @@ int calc_safe_score(int gps_longi[1000], int gps_lati[1000]){
     int | void index = search_place(gps_longi, gps_time, denger_place_longi, denger_place_lati);
     // matchを書かないとコンパイルエラー
     match(index){
-        int: safe_score = 100 - calc_risk(gps_longi[index], gps_lati[index]);
+        int: safe_score = safe_score - calc_risk(gps_longi[index], gps_lati[index]);
         void: safe_score = 100;
     }
 
-    
     return safe_score;
 }
 
+int main(int gps_longi[1000], int gps_lati[1000]){
+    return calc_safe_score(gps_longi, gps_lati);
+}
 
