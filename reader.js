@@ -1,3 +1,8 @@
+const Log = (str, label) => {
+  process.stdout.write(label + ': ');
+  console.log(str);
+};
+
 
 class Reader {
   constructor(tokens){
@@ -16,6 +21,7 @@ class Reader {
 
 const read_str = (str) => {
   const tokens = tokenize(str);
+  Log(tokens, 'tokens');
   return read_form(new Reader(tokens));
 };
 
