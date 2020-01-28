@@ -4,9 +4,21 @@ const {read_str} = require('./reader.js');
 const {pr_str} = require('./printer.js');
 const {ns} = require('./core.js');
 
+const Log = (str, label) => {
+  process.stdout.write(label + ': ');
+  console.log(str);
+};
+
 const READ = read_str;
 const PRINT = pr_str;
-const rep = (str) => PRINT(EVAL(READ(str), repl_env));
+// const rep = (str) => PRINT(EVAL(READ(str), repl_env));
+// なんでこれは動かんのや。
+const rep = (str) => {
+  const r = READ(str);
+  Log(r, 'AST');
+  return PRINT(EVAL(r, repl_env));
+};
+
 
 const repl_env = new Env(null);
 Object.keys(ns).forEach((key) => {
@@ -14,6 +26,7 @@ Object.keys(ns).forEach((key) => {
 });
 
 const EVAL = (ast, env) => {
+  Log(ast, 'ast in EVAL');
   if(!Array.isArray(ast)) return eval_ast(ast, env);
   else if(ast.length === 0) return ast;
   // apply section
@@ -43,6 +56,7 @@ const EVAL = (ast, env) => {
 
       default:
         const [fn, ...args] = eval_ast(ast, env);
+        Log([...args], 'default');
         return fn(...args);
     }
   }
@@ -52,7 +66,9 @@ const eval_ast = (ast, env) => {
   if(typeof ast === 'symbol') return env.get(ast);
   else if(Array.isArray(ast)){
     return ast.map((item) => EVAL(item, env));
-  } else return ast;
+  } else {
+    return ast;
+  }
 };
 
 
