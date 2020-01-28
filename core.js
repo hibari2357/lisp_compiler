@@ -1,10 +1,10 @@
 const {pr_str} = require('./printer.js');
 
 const ns = {
-  '+': (a, b) => a+b,
-  '-': (a, b) => a-b,
-  '*': (a, b) => a*b,
-  '/': (a, b) => parseInt(a/b, 10),
+  '+': (a, b) => '(' + String(a) + ' + ' + String(b) + ')',
+  '-': (a, b) => '(' + String(a) + ' - ' + String(b) + ')',
+  '*': (a, b) => '(' + String(a) + ' * ' + String(b) + ')',
+  '/': (a, b) => '(' + String(a) + ' / ' + String(b) + ')',
 
   'prn': (a) => {
     console.log(pr_str(a));
