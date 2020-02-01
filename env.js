@@ -1,3 +1,7 @@
+const Log = (str, label) => {
+  process.stdout.write(label + ': ');
+  console.log(str);
+};
 class Env {
   constructor(outer={}, binds=[], exprs=[]){
     this.outer = outer;
@@ -9,7 +13,14 @@ class Env {
   }
 
   set(key, val){
-    return this.data[key] = val;
+    Log(String(val), 'Env.set');
+    this.data[key] = val;
+    if(typeof val === 'function'){
+      // Log(val(1, 2), '関数をdefしたときにsetはどれくらい情報をもってる？');
+      return 'def add(field a, field b) -> (field):';
+    } else {
+      return 'letのときに書く';
+    }
   }
 
   find(key){
@@ -21,9 +32,17 @@ class Env {
 
   get(key){
     const env = this.find(key);
-    // console.log('get', key, env);
-    if(env) return env.data[key];
-    else throw new Error(`${Symbol.keyFor(key)} not found`);
+    const initial_key = [
+      '+', '-', '*', '/', 'prn', 'list', 'list?',
+      'empty?', 'count', '=', '<', '<=', '>', '>=',
+    ];
+
+    if(env){
+      if(initial_key.includes(Symbol.keyFor(key))) return env.data[key];
+      else return Symbol.keyFor(key);
+    } else {
+      throw new Error(`${Symbol.keyFor(key)} not found`);
+    }
   }
 }
 

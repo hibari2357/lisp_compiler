@@ -33,9 +33,9 @@ const EVAL = (ast, env) => {
   else {
     const [sym, a0, a1, a2] = ast;
     switch(typeof sym === 'symbol' ? Symbol.keyFor(sym) : Symbol(':default')){
-      case 'def!':
+      case 'define':
         return env.set(a0, EVAL(a1, env));
-      case 'let*':
+      case 'let':
         const let_env = new Env(env);
         const bindings = a0;
         for(let i=0; i<bindings.length; i+=2){
@@ -51,12 +51,13 @@ const EVAL = (ast, env) => {
         } else {
           return typeof a2 === 'undefined' ? null : EVAL(a2, env);
         }
-      case 'fn*':
+      case 'lambda':
         return (...args) => EVAL(a1, new Env(env, a0, args));
 
       default:
         const [fn, ...args] = eval_ast(ast, env);
-        Log([...args], 'default');
+        Log([...args], 'default_args');
+        Log(fn, 'default_fn');
         return fn(...args);
     }
   }
