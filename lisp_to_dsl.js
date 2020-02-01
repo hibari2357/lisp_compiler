@@ -4,18 +4,16 @@ const {read_str} = require('./reader.js');
 const {pr_str} = require('./printer.js');
 const {ns} = require('./core.js');
 
-const Log = (str, label) => {
-  process.stdout.write(label + ': ');
-  console.log(str);
+const Log = (...val) => {
+  console.log(...val);
 };
 
 const READ = read_str;
 const PRINT = pr_str;
 // const rep = (str) => PRINT(EVAL(READ(str), repl_env));
-// なんでこれは動かんのや。
 const rep = (str) => {
   const r = READ(str);
-  Log(r, 'AST');
+  Log('AST', r);
   return PRINT(EVAL(r, repl_env));
 };
 
@@ -26,7 +24,7 @@ Object.keys(ns).forEach((key) => {
 });
 
 const EVAL = (ast, env) => {
-  Log(ast, 'ast in EVAL');
+  Log('ast in EVAL', ast);
   if(!Array.isArray(ast)) return eval_ast(ast, env);
   else if(ast.length === 0) return ast;
   // apply section
@@ -34,7 +32,19 @@ const EVAL = (ast, env) => {
     const [sym, a0, a1, a2] = ast;
     switch(typeof sym === 'symbol' ? Symbol.keyFor(sym) : Symbol(':default')){
       case 'define':
-        return env.set(a0, EVAL(a1, env));
+        Log('defineの中', sym, a0, a1, a2);
+        if(Array.isArray(a1) && Symbol.keyFor(a1[0]) == 'lambda'){
+          const [params, exp] = EVAL(a1, env);
+          Log('define lambda', params, exp);
+          env.set(a0, exp);
+          const code = `
+            def ${Symbol.keyFor(a0)}(${params.map((p)=>Symbol.keyFor(p)).join(', ')}) -> ():
+              return ${exp}
+          `;
+          return code;
+        } else {
+          return env.set(a0, EVAL(a1, env));
+        }
       case 'let':
         const let_env = new Env(env);
         const bindings = a0;
@@ -52,12 +62,13 @@ const EVAL = (ast, env) => {
           return typeof a2 === 'undefined' ? null : EVAL(a2, env);
         }
       case 'lambda':
-        return (...args) => EVAL(a1, new Env(env, a0, args));
-
+        const lambda_exp = EVAL(a1, new Env(env, a0, Array(a0.length)));
+        Log('lambdaEXP', lambda_exp);
+        return [a0, lambda_exp];
       default:
         const [fn, ...args] = eval_ast(ast, env);
-        Log([...args], 'default_args');
-        Log(fn, 'default_fn');
+        Log('default_args', [...args]);
+        Log('default_fn', fn);
         return fn(...args);
     }
   }

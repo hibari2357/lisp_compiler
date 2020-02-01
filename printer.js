@@ -1,11 +1,10 @@
-const Log = (str, label) => {
-  process.stdout.write(label + ': ');
-  console.log(str);
+const Log = (...val) => {
+  console.log(...val);
 };
 
 
 const pr_str = (obj) => {
-  Log(obj, 'obj in pr_str');
+  Log('obj in pr_str', obj);
   if(Array.isArray(obj)){
     return '(' + obj.map((item) => pr_str(item)).join(' ') + ')';
   }
@@ -16,7 +15,7 @@ const pr_str = (obj) => {
     return 'nil';
   }
   else {
-    Log(obj.toString(), 'obj.toString()');
+    Log('obj.toString()', obj.toString());
     return obj.toString();
   }
 };

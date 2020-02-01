@@ -12,7 +12,7 @@ def add(field a, field b) -> (field):
 
 
 
-
+(define add (lambda (a b) (+ a b)))
 
 
 

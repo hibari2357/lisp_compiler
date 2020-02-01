@@ -1,6 +1,5 @@
-const Log = (str, label) => {
-  process.stdout.write(label + ': ');
-  console.log(str);
+const Log = (...val) => {
+  console.log(...val);
 };
 
 
@@ -21,7 +20,7 @@ class Reader {
 
 const read_str = (str) => {
   const tokens = tokenize(str);
-  Log(tokens, 'tokens');
+  Log('tokens', tokens);
   return read_form(new Reader(tokens));
 };
 

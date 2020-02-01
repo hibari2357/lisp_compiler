@@ -1,7 +1,7 @@
-const Log = (str, label) => {
-  process.stdout.write(label + ': ');
-  console.log(str);
+const Log = (...val) => {
+  console.log(...val);
 };
+
 class Env {
   constructor(outer={}, binds=[], exprs=[]){
     this.outer = outer;
@@ -13,10 +13,10 @@ class Env {
   }
 
   set(key, val){
-    Log(String(val), 'Env.set');
+    Log('Env.set', key, String(val));
     this.data[key] = val;
-    if(typeof val === 'function'){
-      // Log(val(1, 2), '関数をdefしたときにsetはどれくらい情報をもってる？');
+    if(typeof val === 'string'){
+      Log('関数をdefしたときにsetはどれくらい情報をもってる？', val);
       return 'def add(field a, field b) -> (field):';
     } else {
       return 'letのときに書く';
