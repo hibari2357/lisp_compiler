@@ -3,3 +3,5 @@
 (define a 1)
 (+ a 2)
 (define add (lambda (a b) (+ a b)))
+(define add (lambda (a b c) (+ a (* c b))))
+
