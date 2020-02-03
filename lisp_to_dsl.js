@@ -4,6 +4,8 @@ const {read_str} = require('./reader.js');
 const {pr_str} = require('./printer.js');
 const {ns} = require('./core.js');
 
+const {code_gen_define} = require('./code_gen_define.js');
+
 const Log = (...val) => {
   console.log(...val);
 };
@@ -36,12 +38,8 @@ const EVAL = (ast, env) => {
         if(Array.isArray(a1) && Symbol.keyFor(a1[0]) == 'lambda'){
           const [params, exp] = EVAL(a1, env);
           Log('define lambda', params, exp);
-          env.set(a0, exp);
-          const code = `
-            def ${Symbol.keyFor(a0)}(${params.map((p)=>Symbol.keyFor(p)).join(', ')}) -> ():
-              return ${exp}
-          `;
-          return code;
+          env.set(a0[1], exp);
+          return code_gen_define(a0, params, exp);
         } else {
           return env.set(a0, EVAL(a1, env));
         }
@@ -62,6 +60,8 @@ const EVAL = (ast, env) => {
           return typeof a2 === 'undefined' ? null : EVAL(a2, env);
         }
       case 'lambda':
+        // a0は(field a field b)、Envが配列を受けるようにする必要ある。
+        // けど一旦全部変数として確かめる。
         const lambda_exp = EVAL(a1, new Env(env, a0, Array(a0.length)));
         Log('lambdaEXP', lambda_exp);
         return [a0, lambda_exp];

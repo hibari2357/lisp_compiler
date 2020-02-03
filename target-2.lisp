@@ -1,19 +1,11 @@
-(define (field add)
-  (lambda (field a field b) 
+(define add 
+  (lambda (a b)
     (+ a b)
   )
 )
 
-def add(field a, field b) -> (field):
-  return a + b
-
-
-
-
-
-
-(define add (lambda (a b) (+ a b)))
-
+def add(a, b) -> ():
+  return (a + b)
 
 
 
