@@ -16,7 +16,6 @@ class Env {
     Log('Env.set', key, String(val));
     this.data[key] = val;
     if(typeof val === 'string'){
-      Log('関数をdefしたときにsetはどれくらい情報をもってる？', val);
       return 'def add(field a, field b) -> (field):';
     } else {
       return 'letのときに書く';
@@ -32,13 +31,9 @@ class Env {
 
   get(key){
     const env = this.find(key);
-    const initial_key = [
-      '+', '-', '*', '/', 'prn', 'list', 'list?',
-      'empty?', 'count', '=', '<', '<=', '>', '>=',
-    ];
 
     if(env){
-      if(initial_key.includes(Symbol.keyFor(key))) return env.data[key];
+      if(typeof env.data[key] === 'function') return env.data[key];
       else return Symbol.keyFor(key);
     } else {
       throw new Error(`${Symbol.keyFor(key)} not found`);

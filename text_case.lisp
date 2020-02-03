@@ -12,3 +12,9 @@
 (define (field add) (lambda (field a field b) (+ a b)))
 (define (field add) (lambda (field a field b field c) (+ a (* b c))))
 
+; call function define addをしてから
+(add 1 2)
+(minus 1 2)
+; (define a 1), (define b 2)をやってから
+(add a b)
+(add a c)

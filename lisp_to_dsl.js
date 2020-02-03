@@ -38,7 +38,9 @@ const EVAL = (ast, env) => {
         if(Array.isArray(a1) && Symbol.keyFor(a1[0]) == 'lambda'){
           const [params, exp] = EVAL(a1, env);
           Log('define lambda', params, exp);
-          env.set(a0[1], exp);
+
+          // 関数呼び出しがあったときに出力するコードをset
+          env.set(a0[1], (...args)=>`${Symbol.keyFor(a0[1])}(${args.join(', ')})`);
           return code_gen_define(a0, params, exp);
         } else {
           return env.set(a0, EVAL(a1, env));
@@ -46,7 +48,7 @@ const EVAL = (ast, env) => {
       case 'let':
         const let_env = new Env(env);
         const bindings = a0;
-        for(let i=0; i<bindings.length; i+=2){
+        for(let i=0; i<bindigs.length; i+=2){
           let_env.set(bindings[i], EVAL(bindings[i+1], let_env));
         }
         return EVAL(a1, let_env);
@@ -62,9 +64,9 @@ const EVAL = (ast, env) => {
       case 'lambda':
         // a0は(field a field b)、Envが配列を受けるようにする必要ある。
         // けど一旦全部変数として確かめる。
-        const lambda_exp = EVAL(a1, new Env(env, a0, Array(a0.length)));
-        Log('lambdaEXP', lambda_exp);
-        return [a0, lambda_exp];
+        const exp = EVAL(a1, new Env(env, a0, Array(a0.length)));
+        Log('lambdaEXP', exp);
+        return [a0, exp];
       default:
         const [fn, ...args] = eval_ast(ast, env);
         Log('default_args', [...args]);

@@ -6,5 +6,3 @@
 
 def add(field a, field b) -> (field):
   return (a + b)
-
-
