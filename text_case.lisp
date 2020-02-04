@@ -23,3 +23,7 @@
 (let (field a 1 field b 2) (+ a b))
 (let (field a 1 field b 2) (+ a c))
 (let (field a 1 field b 2 field c 3) (+ a (* b c)))
+(define (field addsome) (lambda (field a field b) (let (field c 10 field d 20) (+ a (+ b (+ c d))))))
+
+;(define (field add) (lambda (field a field b) (+ a b))) してから
+(define (field addsome) (lambda (field a field b) (let (field c 10 field d 20) (+ a (+ b (add c d))))))

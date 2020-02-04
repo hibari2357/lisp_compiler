@@ -36,7 +36,7 @@ class Env {
       if(typeof env.data[key] === 'function') return env.data[key];
       else return Symbol.keyFor(key);
     } else {
-      throw new Error(`${Symbol.keyFor(key)} not found`);
+      throw new Error(`${Symbol.keyFor(key)} is not declared`);
     }
   }
 }

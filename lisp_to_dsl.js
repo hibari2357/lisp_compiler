@@ -28,7 +28,8 @@ Object.keys(ns).forEach((key) => {
 
 const EVAL = (ast, env) => {
   Log('ast in EVAL', ast);
-  if(!Array.isArray(ast)) return eval_ast(ast, env);
+  // if(!Array.isArray(ast)) return eval_ast(ast);
+  if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast) : ast;
   else if(ast.length === 0) return ast;
   // apply section
   else {
@@ -49,13 +50,15 @@ const EVAL = (ast, env) => {
       case 'let':
         const let_env = new Env(env);
         const bindings = a0;
+        const let_exp = a1;
         for(let i=0; i<bindings.length; i+=3){
           let_env.set(bindings[i+1], EVAL(bindings[i+2], let_env));
         }
-        let_exp = EVAL(a1, let_env);
-        return code_gen_let(a0, let_exp);
+        const zok_let_exp = EVAL(let_exp, let_env);
+        return code_gen_let(bindings, zok_let_exp);
       case 'do':
-        return eval_ast(ast.slice(1), env)[ast.length-2];
+        // return eval_ast(ast.slice(1), env)[ast.length-2];
+        return EVAL(ast.slice(1), env)[ast.length-2];
       case 'if':
         const cond = EVAL(a0, env);
         if(cond !== false && cond !== null){
@@ -66,11 +69,16 @@ const EVAL = (ast, env) => {
       case 'lambda':
         // a0は(field a field b)、Envが配列を受けるようにする必要ある。
         // けど一旦全部変数として確かめる。
-        const exp = EVAL(a1, new Env(env, a0, Array(a0.length)));
-        Log('lambdaEXP', exp);
-        return [a0, exp];
+        const lambda_params = a0;
+        const lambda_exp = a1;
+        const zok_lambda_exp = EVAL(lambda_exp, new Env(env, lambda_params, Array(lambda_params.length)));
+        Log('zokEXPinLambda', zok_lambda_exp);
+        return [a0, zok_lambda_exp];
       default:
-        const [fn, ...args] = eval_ast(ast, env);
+        // const [fn, ...args] = eval_ast(ast, env);
+        // 上記以外のときは最初のsynbolが関数になっている。
+        const [fn, ...args] = ast.map((a) => EVAL(a, env));
+
         Log('default_args', [...args]);
         Log('default_fn', fn);
         return fn(...args);
@@ -78,14 +86,14 @@ const EVAL = (ast, env) => {
   }
 };
 
-const eval_ast = (ast, env) => {
-  if(typeof ast === 'symbol') return env.get(ast);
-  else if(Array.isArray(ast)){
-    return ast.map((item) => EVAL(item, env));
-  } else {
-    return ast;
-  }
-};
+// const eval_ast = (ast, env) => {
+//   if(typeof ast === 'symbol') return env.get(ast);
+//   else if(Array.isArray(ast)){
+//     return ast.map((item) => EVAL(item, env));
+//   } else {
+//     return ast;
+//   }
+// };
 
 
 const rl = readline.createInterface({
