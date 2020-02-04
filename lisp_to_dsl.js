@@ -5,6 +5,7 @@ const {pr_str} = require('./printer.js');
 const {ns} = require('./core.js');
 
 const {code_gen_define} = require('./code_gen_define.js');
+const {code_gen_let} = require('./code_gen_let.js');
 
 const Log = (...val) => {
   console.log(...val);
@@ -48,10 +49,11 @@ const EVAL = (ast, env) => {
       case 'let':
         const let_env = new Env(env);
         const bindings = a0;
-        for(let i=0; i<bindigs.length; i+=2){
-          let_env.set(bindings[i], EVAL(bindings[i+1], let_env));
+        for(let i=0; i<bindings.length; i+=3){
+          let_env.set(bindings[i+1], EVAL(bindings[i+2], let_env));
         }
-        return EVAL(a1, let_env);
+        let_exp = EVAL(a1, let_env);
+        return code_gen_let(a0, let_exp);
       case 'do':
         return eval_ast(ast.slice(1), env)[ast.length-2];
       case 'if':

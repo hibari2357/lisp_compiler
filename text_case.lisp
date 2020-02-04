@@ -18,3 +18,8 @@
 ; (define a 1), (define b 2)をやってから
 (add a b)
 (add a c)
+
+;let
+(let (field a 1 field b 2) (+ a b))
+(let (field a 1 field b 2) (+ a c))
+(let (field a 1 field b 2 field c 3) (+ a (* b c)))

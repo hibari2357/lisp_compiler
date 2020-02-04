@@ -3,11 +3,8 @@ const Log = (...val) => {
 };
 
 const code_gen_define = (label, params, exp) => {
-  const parsed_params = params.map((p, idx)=>{
-    if(idx%2==0){
-      const r = Symbol.keyFor(params[idx]) + ' ' + Symbol.keyFor(params[idx+1]);
-      return r;
-    }
+  const parsed_params = params.map((p, idx) => {
+    if(idx%2==0) return Symbol.keyFor(params[idx]) + ' ' + Symbol.keyFor(params[idx+1]);
   }).filter((x)=>x);
 
   const code = `
