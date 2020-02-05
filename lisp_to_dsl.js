@@ -73,7 +73,7 @@ const EVAL = (ast, env) => {
         const lambda_exp = a1;
         const zok_lambda_exp = EVAL(lambda_exp, new Env(env, lambda_params, Array(lambda_params.length)));
         Log('zokEXPinLambda', zok_lambda_exp);
-        return [a0, zok_lambda_exp];
+        return [lambda_params, zok_lambda_exp];
       default:
         // const [fn, ...args] = eval_ast(ast, env);
         // 上記以外のときは最初のsynbolが関数になっている。

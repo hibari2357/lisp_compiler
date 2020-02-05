@@ -21,9 +21,37 @@
 
 ;let
 (let (field a 1 field b 2) (+ a b))
-(let (field a 1 field b 2) (+ a c))
 (let (field a 1 field b 2 field c 3) (+ a (* b c)))
-(define (field addsome) (lambda (field a field b) (let (field c 10 field d 20) (+ a (+ b (+ c d))))))
+(let (field a 1 field b 2) (+ a c))
+;(define (field add) (lambda (field a field b) (+ a b)))をしてから
+(let (field a 1 field b 2) (add a b))
+(define (field addsome) (lambda (field a field b) (let (field c 10 field d 20) (+ a (+ b (add c d))))))
 
 ;(define (field add) (lambda (field a field b) (+ a b))) してから
-(define (field addsome) (lambda (field a field b) (let (field c 10 field d 20) (+ a (+ b (add c d))))))
+;let bindingsの
+;(define (field addsome) (lambda (field a field b) (let (field c (add a b) field d 20) (+ a (+ b (add c d))))))
+
+;letのbindingsの評価、つまり変数、式、ヴァリアント型
+(let (field a 1 field b a) (+ a b))
+(let (field a 1 field b (+ 1 2)) (+ a b))
+
+
+;if
+(if (= 1 1) 2 3)
+(if (= 1 2) 4 5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
