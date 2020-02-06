@@ -1,10 +1,10 @@
 const {pr_str} = require('./printer.js');
 
 const ns = {
-  '+': (a, b) => '(' + String(a) + ' + ' + String(b) + ')',
-  '-': (a, b) => '(' + String(a) + ' - ' + String(b) + ')',
-  '*': (a, b) => '(' + String(a) + ' * ' + String(b) + ')',
-  '/': (a, b) => '(' + String(a) + ' / ' + String(b) + ')',
+  '+': (a, b) => `(${String(a)} + ${String(b)})`,
+  '-': (a, b) => `(${String(a)} - ${String(b)})`,
+  '*': (a, b) => `(${String(a)} * ${String(b)})`,
+  '/': (a, b) => `(${String(a)} / ${String(b)})`,
 
   'prn': (a) => {
     console.log(pr_str(a));
@@ -23,7 +23,7 @@ const ns = {
       }
       return true;
     } else {
-      return a === b;
+      return `(${String(a)} == ${String(b)})`;
     }
   },
   '<': (a, b) => a < b,
@@ -31,7 +31,6 @@ const ns = {
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
 };
-
 
 module.exports = {
   ns,

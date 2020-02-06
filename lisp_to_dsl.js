@@ -6,6 +6,7 @@ const {ns} = require('./core.js');
 
 const {code_gen_define} = require('./code_gen_define.js');
 const {code_gen_let} = require('./code_gen_let.js');
+const {code_gen_if} = require('./code_gen_if.js');
 
 const Log = (...val) => {
   console.log(...val);
@@ -61,11 +62,9 @@ const EVAL = (ast, env) => {
         return EVAL(ast.slice(1), env)[ast.length-2];
       case 'if':
         const cond = EVAL(a0, env);
-        if(cond !== false && cond !== null){
-          return EVAL(a1, env);
-        } else {
-          return typeof a2 === 'undefined' ? null : EVAL(a2, env);
-        }
+        const t_exp = EVAL(a1, env);
+        const f_exp = EVAL(a2, env);
+        return code_gen_if(cond, t_exp, f_exp);
       case 'lambda':
         // a0は(field a field b)、Envが配列を受けるようにする必要ある。
         // けど一旦全部変数として確かめる。
