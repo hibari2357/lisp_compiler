@@ -45,7 +45,7 @@ const EVAL = (ast, env) => {
           Log('define lambda', params, exp_str);
 
           // 関数呼び出しがあったときに出力するコードをset
-          env.set(label[1], (...args)=>`${Symbol.keyFor(label[0])}(${args.join(', ')})`);
+          env.set(label[1], (...args)=>`${Symbol.keyFor(label[1])}(${args.join(', ')})`);
           return code_gen_define(label, params, exp_str);
         } else {
           return env.set(a0, EVAL(a1, env));
@@ -80,7 +80,7 @@ const EVAL = (ast, env) => {
         const params = a0;
         const exp = a1;
         const exp_str = EVAL(exp, new Env(env, params, Array(params.length)));
-        Log('zokEXPinLambda', lambda_exp_str);
+        Log('zokEXPinLambda', exp_str);
         return [params, exp_str];
       }
       default: {

@@ -34,7 +34,8 @@
 ;letのbindingsの評価、つまり変数、式、ヴァリアント型
 (let (field a 1 field b a) (+ a b))
 (let (field a 1 field b (+ 1 2)) (+ a b))
-
+;(define (field add) (lambda (field a field b) (+ a b))) してから
+(let (field a (add 1 2)) (+ a 3))
 
 ;if
 (if 1 2 3)
