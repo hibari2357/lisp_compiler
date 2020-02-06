@@ -42,6 +42,7 @@
 ;(define (field add) (lambda (field a field b) (+ a b))) してから
 (if (= 1 2) (+ 3 4) (add 6 7))
 (let (field a 2 field b 2) (if (= a b) (+ a b) 0))
+(if (&& (= 1 2) (= 3 4)) (+ 5 6) (+ 7 8))
 
 
 ;variant宣言(型チェックはまだ)
@@ -51,7 +52,8 @@
 
 ;variantを返す関数
 (define ((| field void) check) (lambda (field a field b) (if (= a b) (+ a b) nil)))
-
+;def check(field a, field b) -> (variant):
+;  return if (a == b) then variant {type: 0, value: (a + b)} else variant {type: 1, value: 0} fi
 
 
 

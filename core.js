@@ -5,6 +5,8 @@ const ns = {
   '-': (a, b) => `(${String(a)} - ${String(b)})`,
   '*': (a, b) => `(${String(a)} * ${String(b)})`,
   '/': (a, b) => `(${String(a)} / ${String(b)})`,
+  '&&': (a, b) => `(${String(a)} && ${String(b)})`,
+  '||': (a, b) => `(${String(a)} || ${String(b)})`,
 
   'prn': (a) => {
     console.log(pr_str(a));
