@@ -7,7 +7,7 @@ const code_gen_let = (bindings, exp) => {
   const parsed_bindings = bindings.map((b, idx) => {
     if(idx%3==0) {
       // ヴァリアント型宣言の場合
-      Log('ヴァリアント宣言', bindings[idx], Symbol.keyFor(bindings[idx][0]) === '|');
+
       if(Array.isArray(bindings[idx]) && Symbol.keyFor(bindings[idx][0]) === '|'){
         const global_struct_code = '<global>\nstruct variant {\n  field type\n  field value\n}\n</global>';
         // ヴァリアントは初期値に関数を取れないので、適当な初期値を置く
@@ -23,7 +23,7 @@ const code_gen_let = (bindings, exp) => {
       }
     }
   }).filter((x)=>x);
-  
+
   const code = `${parsed_bindings.join('\n')}\n${exp}`;
   return code;
 };

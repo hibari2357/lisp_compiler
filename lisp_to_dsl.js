@@ -30,7 +30,7 @@ Object.keys(ns).forEach((key) => {
 const EVAL = (ast, env) => {
   Log('ast in EVAL', ast);
   // if(!Array.isArray(ast)) return eval_ast(ast);
-  if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast) : String(ast);
+  if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast).value : String(ast);
   else if(ast.length === 0) return ast;
   // apply section
   else {
@@ -56,8 +56,28 @@ const EVAL = (ast, env) => {
         const bindings = a0;
         const exp = a1;
         for(let i=0; i<bindings.length; i+=3){
-          const value_str = EVAL(bindings[i+2], let_env);
-          let_env.set(bindings[i+1], value_str);
+          const type = bindings[i];
+          const label = bindings[i+1];
+          const initial_value = bindings[i+2];
+          if(typeof initial_value === 'number'){
+            if(Symbol.keyFor(type) !== 'field') throw new Error(`typeof initial_value is 'field', but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+          } else if(typeof initial_value === 'boolean') {
+            if(Symbol.keyFor(type) !== 'bool') throw new Error(`typeof initial_value is 'bool', but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+          } else {
+            // 初期値が変数/オペレータの場合
+            const typeof_initial_value = let_env.get(initial_value).type;
+            Log('letの初期値に変数を宣言', let_env.get(initial_value));
+            if(typeof_initial_value !== Symbol.keyFor(type)) throw new Error(`typeof initial_value is ${typeof_initial_value}, but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+          }
+
+
+          const value_str = EVAL(initial_value, let_env);
+          const value_obj = {
+            value: value_str,
+            type: Symbol.keyFor(type),
+            params_type: [],
+          };
+          let_env.set(label, value_obj);
           // bindingsのvalueをevalしたstrに置き換え
           bindings[i+2] = value_str;
         }
@@ -94,6 +114,7 @@ const EVAL = (ast, env) => {
         const match_env2 = new Env(env);
         Log('matchのvariant:type1:exp1:type2:exp2', variant, type1, exp1, type2, exp2);
         Log('env1:env2', match_env1, match_env2);
+        // ほんとはtypeに合わせた型でenv.setする必要がある
         // type1のv.valueとしてセット
         match_env1.set(Symbol.for(`${variant}.value`), 0);
         // type2のv.valueとしてセット

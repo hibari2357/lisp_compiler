@@ -233,12 +233,40 @@ return if a == b then variant {type: 0, value: (a + b)} else variant {type: 1, v
 
 (define ((| field void) check) (lambda (field a field b) (if (= a b) (+ a b) nil)))
 
+def check(field a, field b) -> (variant):
+  return if (a == b) then variant {type: 0, value: (a + b)} else variant {type: 1, value: 0} fi
 
 
 
 
+よし、次は型チェック！！！！！
+・let宣言
+宣言した型と、初期値のリテラルもしくはenv.getの型が同じか。
+・define返り値
+宣言した型と、返り値のリテラルもしくはenv.getの型が同じか。
+・env.get関数/オペレータのパラメータ
+こいつらはパラメータの型と、自身の型を持つ必要がある
+呼び出し時のパラメータの型とパラメータの型が同じか。
 
+どこでチェックするか？
+こういう感じ。
 
+env.data = {
+  [key]:value,
+  [key]:value,
+}
+
+って感じ。
+
+env.data = {
+  [key]:{
+    value:'0',
+    type:'field',
+    params_type:[],
+  },
+}
+
+みたいな感じにする。
 
 
 

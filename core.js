@@ -1,7 +1,11 @@
 const {pr_str} = require('./printer.js');
 
 const ns = {
-  '+': (a, b) => `(${String(a)} + ${String(b)})`,
+  '+': {
+    value: (a, b) => `(${String(a)} + ${String(b)})`,
+    type: 'field',
+    params: ['field', 'field'],
+  },
   '-': (a, b) => `(${String(a)} - ${String(b)})`,
   '*': (a, b) => `(${String(a)} * ${String(b)})`,
   '/': (a, b) => `(${String(a)} / ${String(b)})`,

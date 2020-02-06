@@ -14,11 +14,11 @@ class Env {
 
   set(key, val){
     Log('Env.set', key, String(val));
-    this.data[key] = val;
-    if(typeof val === 'string'){
-      return 'def add(field a, field b) -> (field):';
+    if(typeof val.value === 'function'){
+      this.data[key] = val;
     } else {
-      return 'letのときに書く';
+      val.value = Symbol.keyFor(key);
+      this.data[key] = val;
     }
   }
 
@@ -33,8 +33,9 @@ class Env {
     const env = this.find(key);
 
     if(env){
-      if(typeof env.data[key] === 'function') return env.data[key];
-      else return Symbol.keyFor(key);
+      return env.data[key];
+      // if(typeof env.data[key] === 'function') return env.data[key];
+      // else return Symbol.keyFor(key);
     } else {
       throw new Error(`${Symbol.keyFor(key)} is not declared`);
     }

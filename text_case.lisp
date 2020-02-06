@@ -56,6 +56,14 @@
 ;  return if (a == b) then variant {type: 0, value: (a + b)} else variant {type: 1, value: 0} fi
 
 
+;型チェック
+;初期値がリテラル
+(let (field a 1) a)
+(let (field a false) a) ;typeof initial_value is 'bool', but typeof a is 'field'
+(let (field a 1 field b false) (+ a b)) ;typeof initial_value is 'bool', but typeof b is 'field'
+;初期値が変数
+(let (field a 1) (let (field b a) (+ a 1)))
+(let (field a 1) (let (bool b a) (+ a 1))) ;typeof initial_value is field, but typeof b is 'bool'
 
 
 
