@@ -2,15 +2,35 @@ const {pr_str} = require('./printer.js');
 
 const ns = {
   '+': {
-    value: (a, b) => `(${String(a)} + ${String(b)})`,
+    value: (a, b) => `(${a} + ${(b)})`,
     type: 'field',
-    params: ['field', 'field'],
+    params_type: ['field', 'field'],
   },
-  '-': (a, b) => `(${String(a)} - ${String(b)})`,
-  '*': (a, b) => `(${String(a)} * ${String(b)})`,
-  '/': (a, b) => `(${String(a)} / ${String(b)})`,
-  '&&': (a, b) => `(${String(a)} && ${String(b)})`,
-  '||': (a, b) => `(${String(a)} || ${String(b)})`,
+  '-': {
+    value: (a, b) => `(${a} - ${(b)})`,
+    type: 'field',
+    params_type: ['field', 'field'],
+  },
+  '*': {
+    value: (a, b) => `(${a} * ${(b)})`,
+    type: 'field',
+    params_type: ['field', 'field'],
+  },
+  '/': {
+    value: (a, b) => `(${a} / ${(b)})`,
+    type: 'field',
+    params_type: ['field', 'field'],
+  },
+  '&&': {
+    value: (a, b) => `(${a} && ${(b)})`,
+    type: 'bool',
+    params_type: ['bool', 'bool'],
+  },
+  '||': {
+    value: (a, b) => `(${a} || ${(b)})`,
+    type: 'bool',
+    params_type: ['bool', 'bool'],
+  },
 
   'prn': (a) => {
     console.log(pr_str(a));

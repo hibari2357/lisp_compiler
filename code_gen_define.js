@@ -26,10 +26,8 @@ const variant_replace = (exp_str) => {
 };
 
 
-const code_gen_define = (label, params, exp_str) => {
-  const return_type = label[0];
-  const fn_name = label[1];
-  Log('code_gen_define:label:params:exp', label, params, exp_str);
+const code_gen_define = (return_type, fn_name, params, exp_str) => {
+  Log('code_gen_define:type:name:params:exp', return_type, fn_name, params, exp_str);
 
   // 関数の引数のパース
   const parsed_params = params.map((p, idx) => {

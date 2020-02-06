@@ -38,18 +38,44 @@ const EVAL = (ast, env) => {
     switch(typeof sym === 'symbol' ? Symbol.keyFor(sym) : Symbol(':default')){
       case 'define': {
         Log('defineの中', sym, a0, a1, a2);
-        const label = a0;
+        const fn_type = a0[0];
+        const label = a0[1];
         const exp = a1;
         if(Array.isArray(exp) && Symbol.keyFor(exp[0]) == 'lambda'){
           const [params, exp_str] = EVAL(exp, env);
           Log('define lambda', params, exp_str);
 
           // 関数呼び出しがあったときに出力するコードをset
-          env.set(label[1], (...args)=>`${Symbol.keyFor(label[1])}(${args.join(', ')})`);
-          return code_gen_define(label, params, exp_str);
-        } else {
-          return env.set(a0, EVAL(a1, env));
+          env.set(label, {
+            value: (...args)=>`${Symbol.keyFor(label)}(${args.join(', ')})`,
+            type: Symbol.keyFor(fn_type),
+            params_type: params.map((p, idx) => {
+              if(idx%2==0) return Symbol.keyFor(params[idx]);
+            }).filter((x)=>x),
+          });
+          return code_gen_define(fn_type, label, params, exp_str);
         }
+      }
+      case 'lambda': {
+        // a0は(field a field b)、Envが配列を受けるようにする必要ある。
+        // けど一旦全部変数として確かめる。
+        const params = a0;
+        const exp = a1;
+        // インタープリタでは宣言時に評価されないが、コンパイラなのでパラメータ以外の変数が使われていなか
+        // チェックするために適当な初期値(Array(params.length))->undefの配列をいれてenv.setしておく
+        const exp_str = EVAL(exp, new Env(env, params, Array(params.length/2)));
+        Log('zokEXPinLambda', exp_str);
+        return [params, exp_str];
+      }
+      case 'do': {
+        // return eval_ast(ast.slice(1), env)[ast.length-2];
+        return EVAL(ast.slice(1), env)[ast.length-2];
+      }
+      case 'if': {
+        const cond = EVAL(a0, env);
+        const t_exp = EVAL(a1, env);
+        const f_exp = EVAL(a2, env);
+        return code_gen_if(cond, t_exp, f_exp);
       }
       case 'let': {
         const let_env = new Env(env);
@@ -60,16 +86,21 @@ const EVAL = (ast, env) => {
           const label = bindings[i+1];
           const initial_value = bindings[i+2];
           if(typeof initial_value === 'number'){
-            if(Symbol.keyFor(type) !== 'field') throw new Error(`typeof initial_value is 'field', but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+            if(Symbol.keyFor(type) !== 'field') throw new Error(`typeof initial_value is 'field', but typeof '${Symbol.keyFor(label)}' is '${Symbol.keyFor(type)}'`);
           } else if(typeof initial_value === 'boolean') {
-            if(Symbol.keyFor(type) !== 'bool') throw new Error(`typeof initial_value is 'bool', but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+            if(Symbol.keyFor(type) !== 'bool') throw new Error(`typeof initial_value is 'bool', but typeof '${Symbol.keyFor(label)}' is '${Symbol.keyFor(type)}'`);
+            // 初期値が変数/オペレータ、関数の場合
           } else {
-            // 初期値が変数/オペレータの場合
-            const typeof_initial_value = let_env.get(initial_value).type;
-            Log('letの初期値に変数を宣言', let_env.get(initial_value));
+            //オペレータ、関数の場合
+            let typeof_initial_value;
+            if(Array.isArray(initial_value)){
+              const arg_type = env.get(arg[0]).type;
+              typeof_initial_value = let_env.get(initial_value[0]).type;
+            } else {
+              typeof_initial_value = let_env.get(initial_value).type;
+            }
             if(typeof_initial_value !== Symbol.keyFor(type)) throw new Error(`typeof initial_value is ${typeof_initial_value}, but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
           }
-
 
           const value_str = EVAL(initial_value, let_env);
           const value_obj = {
@@ -84,27 +115,6 @@ const EVAL = (ast, env) => {
         Log('let_env', let_env);
         const exp_str = EVAL(exp, let_env);
         return code_gen_let(bindings, exp_str);
-      }
-      case 'do': {
-        // return eval_ast(ast.slice(1), env)[ast.length-2];
-        return EVAL(ast.slice(1), env)[ast.length-2];
-      }
-      case 'if': {
-        const cond = EVAL(a0, env);
-        const t_exp = EVAL(a1, env);
-        const f_exp = EVAL(a2, env);
-        return code_gen_if(cond, t_exp, f_exp);
-      }
-      case 'lambda': {
-        // a0は(field a field b)、Envが配列を受けるようにする必要ある。
-        // けど一旦全部変数として確かめる。
-        const params = a0;
-        const exp = a1;
-        // インタープリタでは宣言時に評価されないが、コンパイラなのでパラメータ以外の変数が使われていなか
-        // チェックするために適当な初期値(Array(params.length))->undefの配列をいれてenv.setしておく
-        const exp_str = EVAL(exp, new Env(env, params, Array(params.length)));
-        Log('zokEXPinLambda', exp_str);
-        return [params, exp_str];
       }
       case 'match': {
         const variant = Symbol.keyFor(a0);
@@ -139,10 +149,31 @@ const EVAL = (ast, env) => {
       }
       default: {
         // const [fn, ...args] = eval_ast(ast, env);
-        // 上記以外のときは最初のsynbolが基本演算子か、defineした関数
+        // 上記以外のときは最初のsymbolが基本演算子か、defineした関数
         const [fn, ...args] = ast.map((a) => EVAL(a, env));
-        Log('default_args', [...args]);
-        Log('default_fn', fn);
+        const [label, ...args_ast] = ast;
+        Log('関数コール時の引数', label, args_ast);
+
+        //これ1変数しかとらないとき落ちますね...
+        const fn_params_type = env.get(label).params_type;
+        Log('関数呼び出しのパラメータの型', fn_params_type);
+        if(args_ast.length !== fn_params_type.length) throw new Error(`'${Symbol.keyFor(sym)}' takes ${fn_params_type.length} params, but given ${args_ast.length}`);
+        for(let i=0; i<fn_params_type.length; i++){
+          const arg = args_ast[i];
+          const param_type = fn_params_type[i];
+          if(typeof arg === 'number'){
+            if(param_type !== 'field') throw new Error(`typeof '${Symbol.keyFor(label)}' param is '${param_type}', but typeof arg is 'field'`);
+          } else if(typeof arg === 'boolean') {
+            if(param_type !== 'bool') throw new Error(`typeof '${Symbol.keyFor(label)}' param is '${param_type}', but typeof arg is 'bool'`);
+          } else if(Array.isArray(arg)){
+            // 最初のsymbolを関数だと考えればそれが返す型を決めている
+            const arg_type = env.get(arg[0]).type;
+            if(param_type !== arg_type) throw new Error(`typeof '${Symbol.keyFor(label)}' param is '${param_type}', but typeof arg is '${arg_type}'`);
+          } else {
+            const arg_type = env.get(arg).type;
+            if(param_type !== arg_type) throw new Error(`typeof '${Symbol.keyFor(label)}' param is '${param_type}', but typeof arg is '${arg_type}'`);
+          }
+        }
         const fncall_or_initial_operator_str = fn(...args);
         return fncall_or_initial_operator_str;
       }

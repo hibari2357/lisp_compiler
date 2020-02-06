@@ -65,6 +65,34 @@
 (let (field a 1) (let (field b a) (+ a 1)))
 (let (field a 1) (let (bool b a) (+ a 1))) ;typeof initial_value is field, but typeof b is 'bool'
 
+;初期値が演算/関数
+(let (field a (+ 1 2)) a)
+(let (bool a (+ 1 2)) a) ;typeof initial_value is field, but typeof a is 'bool'
+
+
+;引数の型チェック
+(+ 1 2)
+(+ false 2) ;typeof + param is 'field', but typeof arg is 'bool'
+(+ 1 (+ 2 3))
+(+ 1 (+ 2 false)) ;typeof '+' param is 'field', but typeof arg is 'bool'
+(let (field a 1) (+ a 2))
+(let (bool a false) (+ a 2)) ;typeof + param is 'field', but typeof arg is 'bool'
+;(define (field add) (lambda (field a field b) (+ a b))) してから
+(+ (add 1 2) 3)
+(let (field a 1) (+ a (add 2 3)))
+;(define (bool add) (lambda (field a field b) false)) してから
+(+ (add 1 2) 3) ;typeof '+' param is 'field', but typeof arg is 'bool'
+(let (field a 1) (+ a (add 2 3))) ;typeof '+' param is 'field', but typeof arg is 'bool'
+
+
+
+
+
+
+
+
+
+
 
 
 

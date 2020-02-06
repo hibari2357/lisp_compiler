@@ -7,13 +7,18 @@ class Env {
     this.outer = outer;
     this.data = {};
 
-    for(let i=0; i<binds.length; i++){
-      this.set(binds[i], exprs[i]);
+    for(let i=0; i<binds.length; i+=2){
+      this.set(binds[i+1], {
+        value: exprs[i],
+        type: Symbol.keyFor(binds[i]),
+        params_type: [],
+      });
     }
+    Log('Env コンストラクター', binds, exprs, this);
   }
 
   set(key, val){
-    Log('Env.set', key, String(val));
+    Log('Env.set', key, JSON.stringify(val));
     if(typeof val.value === 'function'){
       this.data[key] = val;
     } else {
