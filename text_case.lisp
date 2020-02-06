@@ -49,6 +49,8 @@
 (let ((| field void) v (add 1 2)) (match v (field (+ v 1)) (void 1)))
 (let ((| field void) v (add 1 2)) (match v (field (+ v (* v 2))) (void (+ 1 2))))
 
+;variantを返す関数
+(define ((| field void) check) (lambda (field a field b) (if (= a b) (+ a b) nil)))
 
 
 

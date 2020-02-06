@@ -163,6 +163,78 @@ if v.type == 0 then (v.value + 1) else 1 fi
 これが出力される。これであってますか？？
 
 
+はい、次
+ヴァリアントを返す関数。
+(define ((| field void) check)
+  (lambda (field a field b)
+    (if (= a b)
+      (+ a b)
+      nil
+    )
+  )
+)
+
+def check(field a, field b) -> (variant):
+  res = if a == b then variant {type:0, value:(a + b)} else variant {type:1, value:0} fi
+  return res
+
+んーー
+returnしてるvalueの型を見て、構造体のtypeを決めないといけないな。
+とりあえず固定値でやる。
+
+
+(define (field add) (lambda (field a field b) (+ a b))
+これだとlabelは[field, add]
+って感じ。
+
+(define ((| field void) check))
+これだとlabelは[[|, field, void] check]
+って感じになる。
+
+いやまってこれ、参ったぞ。lambdaがすでにexp_strを返してきてるぞこれ。
+つまり、これに対して
+  (lambda (field a field b)
+    (if (= a b)
+      (+ a b)
+      nil
+    )
+  )
+
+return if a == b then (a + b) else  fi
+これを返してきてる。これをうまくパースして書き換える感じになるのか。
+res = if a == b then variant {type:0, value:(a + b)} else variant {type:1, value:0} fi
+んーまぁthenとelseの間を抜き出す、elseとfiの間を抜き出す、
+valueに入れるってだけだからできるとは思う。
+
+そのvalueの型見るじゃん、それでtype決めるじゃん、って感じだなこれ。
+正規表現で間の文字の抜き出し型だな。
+いやこれifとか関係なくreturnしてるやつを全パターン見る感じでしょこれ。
+ん、いやそうか。1行しかうけつけてないから、最後の行が返り値。ifなら2つ見て、そうじゃなければ一つ見る。
+変数コール(変数・関数)してたらそれの型。
+
+よし。もう少し！
+正味文章書くのはすぐにできる！！！
+いやとりあえずifだけにしましょ...
+
+あーglobalを外に出すのもあったな...
+いやマジであともう少しなんだよな....
+
+いまが一番やるとき
+まずイメージを書く。
+
+よし、よし、長かったが...
+こんなに正規表現でゴリ押すものなのか...???
+もっといい構成があるような気もするんだよなぁ。
+
+return if a == b then (a + b) else null fi
+return if a == b then variant {type: 0, value: (a + b)} else variant {type: 1, value: 0} fi
+
+
+
+(define ((| field void) check) (lambda (field a field b) (if (= a b) (+ a b) nil)))
+
+
+
 
 
 
