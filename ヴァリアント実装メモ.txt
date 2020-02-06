@@ -1,0 +1,57 @@
+
+てかifからやろ。
+
+(if cond exp1 exp2)
+を
+if cond then exp1 else exp2 fi
+にする。
+
+おーけーできました。
+次！
+
+で次。
+
+defineが最終的にコードを全部生成する。
+だからlambdaもletもグローバルを渡していく感じ。
+
+いやこれlambdaに入る可能性あるもの全部がglabalも返さないといけなくなる。
+いやーいけるか。defaultのfnが返してるから、そこでglabalも返せばいい。
+
+いやこれEVALしたら絶対にexp_str + global_strが帰ってくるようにするってことだよな。
+
+えーなんかめんどうだなぁーーーーどうしよーーーー
+だってatomとかでも返さないといけなくなるぞこれ。
+
+やっぱ正規表現でごり押し！でやるか...
+<global>
+struct variant {
+  field type
+  field valuet
+}
+</global>
+みたいな感じで表記しておく。
+defineはexp_strで、正規表現で<global></global>を見つけて、その中をコードの先頭に
+置き換える、みたいなことをやる。
+
+
+あーletのsetどーすっかなぁ。
+いや変数名はそのままでvalueはできとうにオブジェクトいれりゃいい。
+んー？これsetするやつのEVALできてんじゃん。
+setはできてた。code_genでコンバートできてないだけ。
+code_gen_letに渡すbindingsのvalueをastのままじゃなくてstringにしてから渡した。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

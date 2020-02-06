@@ -36,51 +36,62 @@ const EVAL = (ast, env) => {
   else {
     const [sym, a0, a1, a2] = ast;
     switch(typeof sym === 'symbol' ? Symbol.keyFor(sym) : Symbol(':default')){
-      case 'define':
+      case 'define': {
         Log('defineの中', sym, a0, a1, a2);
-        if(Array.isArray(a1) && Symbol.keyFor(a1[0]) == 'lambda'){
-          const [params, exp] = EVAL(a1, env);
-          Log('define lambda', params, exp);
+        const label = a0;
+        const exp = a1;
+        if(Array.isArray(exp) && Symbol.keyFor(exp[0]) == 'lambda'){
+          const [params, exp_str] = EVAL(exp, env);
+          Log('define lambda', params, exp_str);
 
           // 関数呼び出しがあったときに出力するコードをset
-          env.set(a0[1], (...args)=>`${Symbol.keyFor(a0[1])}(${args.join(', ')})`);
-          return code_gen_define(a0, params, exp);
+          env.set(label[1], (...args)=>`${Symbol.keyFor(label[0])}(${args.join(', ')})`);
+          return code_gen_define(label, params, exp_str);
         } else {
           return env.set(a0, EVAL(a1, env));
         }
-      case 'let':
+      }
+      case 'let': {
         const let_env = new Env(env);
         const bindings = a0;
-        const let_exp = a1;
+        const exp = a1;
         for(let i=0; i<bindings.length; i+=3){
-          let_env.set(bindings[i+1], EVAL(bindings[i+2], let_env));
+          const value_str = EVAL(bindings[i+2], let_env);
+          let_env.set(bindings[i+1], value_str);
+          bindings[i+2] = value_str;
         }
-        const zok_let_exp = EVAL(let_exp, let_env);
-        return code_gen_let(bindings, zok_let_exp);
-      case 'do':
+        Log('let_env', let_env);
+        const exp_str = EVAL(exp, let_env);
+        return code_gen_let(bindings, exp_str);
+      }
+      case 'do': {
         // return eval_ast(ast.slice(1), env)[ast.length-2];
         return EVAL(ast.slice(1), env)[ast.length-2];
-      case 'if':
+      }
+      case 'if': {
         const cond = EVAL(a0, env);
         const t_exp = EVAL(a1, env);
         const f_exp = EVAL(a2, env);
         return code_gen_if(cond, t_exp, f_exp);
-      case 'lambda':
+      }
+      case 'lambda': {
         // a0は(field a field b)、Envが配列を受けるようにする必要ある。
         // けど一旦全部変数として確かめる。
-        const lambda_params = a0;
-        const lambda_exp = a1;
-        const zok_lambda_exp = EVAL(lambda_exp, new Env(env, lambda_params, Array(lambda_params.length)));
-        Log('zokEXPinLambda', zok_lambda_exp);
-        return [lambda_params, zok_lambda_exp];
-      default:
+        const params = a0;
+        const exp = a1;
+        const exp_str = EVAL(exp, new Env(env, params, Array(params.length)));
+        Log('zokEXPinLambda', lambda_exp_str);
+        return [params, exp_str];
+      }
+      default: {
         // const [fn, ...args] = eval_ast(ast, env);
-        // 上記以外のときは最初のsynbolが関数になっている。
+        // 上記以外のときは最初のsynbolが基本演算子か、defineした関数
         const [fn, ...args] = ast.map((a) => EVAL(a, env));
-
         Log('default_args', [...args]);
         Log('default_fn', fn);
-        return fn(...args);
+        const fncall_or_initial_operator_str = fn(...args);
+        return fncall_or_initial_operator_str;
+      }
     }
   }
 };
