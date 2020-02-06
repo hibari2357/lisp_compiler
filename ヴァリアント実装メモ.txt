@@ -325,11 +325,31 @@ lambdaのnew Envが型setしてなかった問題を解決した。
 
 よっしゃ！よっしゃ！よっしゃ！！！
 
+あとヴァリアントだな。
+うーーーーん。
+登場シーンは二つ。
+(let ((| field void) v (check 1 2))
+  (match v 
+    (field (+ v 1))
+    (void 1)
+  )
+)
+
+(define ((| field void) check) (lambda (field a field b) (if (= a b) (+ a b) 1)))
+
+これそもそもsetしてない臭いんだよな。
+よしできた。letのときは...?
+
+(define (field add) (lambda (field a field b) (+ a b)))
+(let ((| field void) v (add 1 2)) (match v (field (+ v 1)) (void 1)))
+
+(let ((| field void) v (add 1 2)) (+ 3 4))
+
+(let ((| field void) v (check 1 2)) (match v (field (+ v 1)) (void 1)))
 
 
 
-
-
+いやーーーーーこれでまぁ一旦大丈夫といえるでしょう！！！
 
 
 

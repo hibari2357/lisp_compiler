@@ -45,14 +45,26 @@ const EVAL = (ast, env) => {
           const [params, exp_str] = EVAL(exp, env);
           Log('define lambda', params, exp_str);
 
-          // 関数呼び出しがあったときに出力するコードをset
-          env.set(label, {
+
+          Log('defineのtypeとlabel', fn_type, label);
+          const define_obj = {
+            // 関数呼び出しがあったときに出力するコードをset
             value: (...args)=>`${Symbol.keyFor(label)}(${args.join(', ')})`,
-            type: Symbol.keyFor(fn_type),
+            type: null,
             params_type: params.map((p, idx) => {
               if(idx%2==0) return Symbol.keyFor(params[idx]);
             }).filter((x)=>x),
-          });
+          };
+
+          // ヴァリアントかどうかで型の入れ方を変える
+          if(Array.isArray(fn_type) && Symbol.keyFor(fn_type[0]) === '|'){
+            define_obj.type = fn_type.slice(1).map((p)=>Symbol.keyFor(p)).join(' | ');
+          } else {
+            define_obj.type = Symbol.keyFor(fn_type);
+          }
+
+          env.set(label, define_obj);
+          Log('defineでsetしたもの', env);
           return code_gen_define(fn_type, label, params, exp_str);
         }
       }
@@ -91,23 +103,36 @@ const EVAL = (ast, env) => {
             if(Symbol.keyFor(type) !== 'bool') throw new Error(`typeof initial_value is 'bool', but typeof '${Symbol.keyFor(label)}' is '${Symbol.keyFor(type)}'`);
             // 初期値が変数/オペレータ、関数の場合
           } else {
-            //オペレータ、関数の場合
+            // 初期値がオペレータ、関数の場合
             let typeof_initial_value;
+            Log('オペレータ、関数が初期値のlet:type', type);
             if(Array.isArray(initial_value)){
-              const arg_type = env.get(arg[0]).type;
               typeof_initial_value = let_env.get(initial_value[0]).type;
             } else {
               typeof_initial_value = let_env.get(initial_value).type;
             }
-            if(typeof_initial_value !== Symbol.keyFor(type)) throw new Error(`typeof initial_value is ${typeof_initial_value}, but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+
+            if(Array.isArray(type)){
+              const variant_type = type.slice(1).map((p)=>Symbol.keyFor(p)).join(' | ');
+              if(typeof_initial_value !== variant_type) throw new Error(`typeof initial_value is ${typeof_initial_value}, but typeof ${Symbol.keyFor(label)} is '${variant_type}'`);
+            } else {
+              if(typeof_initial_value !== Symbol.keyFor(type)) throw new Error(`typeof initial_value is ${typeof_initial_value}, but typeof ${Symbol.keyFor(label)} is '${Symbol.keyFor(type)}'`);
+            }
           }
 
           const value_str = EVAL(initial_value, let_env);
           const value_obj = {
             value: value_str,
-            type: Symbol.keyFor(type),
+            type: null,
             params_type: [],
           };
+
+          // ヴァリアントかどうかで型の入れ方を変える
+          if(Array.isArray(type) && Symbol.keyFor(type[0]) === '|'){
+            value_obj.type = type.slice(1).map((p)=>Symbol.keyFor(p)).join(' | ');
+          } else {
+            value_obj.type = Symbol.keyFor(type);
+          }
           let_env.set(label, value_obj);
           // bindingsのvalueをevalしたstrに置き換え
           bindings[i+2] = value_str;
@@ -126,9 +151,18 @@ const EVAL = (ast, env) => {
         Log('env1:env2', match_env1, match_env2);
         // ほんとはtypeに合わせた型でenv.setする必要がある
         // type1のv.valueとしてセット
-        match_env1.set(Symbol.for(`${variant}.value`), 0);
+        match_env1.set(Symbol.for(`${variant}.value`), {
+          value: 0,
+          type: 'field',
+          params_type: [],
+        });
         // type2のv.valueとしてセット
-        match_env2.set(Symbol.for(`${variant}.value`), 0);
+        match_env2.set(Symbol.for(`${variant}.value`), {
+          value: 0,
+          type: 'void',
+          params_type: [],
+        });
+ 
         Log('env1:env2', match_env1, match_env2);
         // expのvをv.valueに置換
         const replace_variant = (exp) => {
@@ -156,7 +190,7 @@ const EVAL = (ast, env) => {
 
         //これ1変数しかとらないとき落ちますね...
         const fn_params_type = env.get(label).params_type;
-        Log('関数呼び出しのパラメータの型', fn_params_type);
+        Log('関数呼び出しのパラメータの型', fn_params_type, env);
         if(args_ast.length !== fn_params_type.length) throw new Error(`'${Symbol.keyFor(sym)}' takes ${fn_params_type.length} params, but given ${args_ast.length}`);
         for(let i=0; i<fn_params_type.length; i++){
           const arg = args_ast[i];
