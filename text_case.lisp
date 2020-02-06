@@ -44,6 +44,10 @@
 (let (field a 2 field b 2) (if (= a b) (+ a b) 0))
 
 
+;variant宣言(型チェックはまだ)
+;(define (field add) (lambda (field a field b) (+ a b))) してから
+(let ((| field void) v (add 1 2)) (match v (field (+ v 1)) (void 1)))
+(let ((| field void) v (add 1 2)) (match v (field (+ v (* v 2))) (void (+ 1 2))))
 
 
 

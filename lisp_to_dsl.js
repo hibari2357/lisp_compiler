@@ -30,7 +30,7 @@ Object.keys(ns).forEach((key) => {
 const EVAL = (ast, env) => {
   Log('ast in EVAL', ast);
   // if(!Array.isArray(ast)) return eval_ast(ast);
-  if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast) : ast;
+  if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast) : String(ast);
   else if(ast.length === 0) return ast;
   // apply section
   else {
@@ -58,6 +58,7 @@ const EVAL = (ast, env) => {
         for(let i=0; i<bindings.length; i+=3){
           const value_str = EVAL(bindings[i+2], let_env);
           let_env.set(bindings[i+1], value_str);
+          // bindingsのvalueをevalしたstrに置き換え
           bindings[i+2] = value_str;
         }
         Log('let_env', let_env);
@@ -79,9 +80,41 @@ const EVAL = (ast, env) => {
         // けど一旦全部変数として確かめる。
         const params = a0;
         const exp = a1;
+        // インタープリタでは宣言時に評価されないが、コンパイラなのでパラメータ以外の変数が使われていなか
+        // チェックするために適当な初期値(Array(params.length))->undefの配列をいれてenv.setしておく
         const exp_str = EVAL(exp, new Env(env, params, Array(params.length)));
         Log('zokEXPinLambda', exp_str);
         return [params, exp_str];
+      }
+      case 'match': {
+        const variant = Symbol.keyFor(a0);
+        const [type1, exp1] = [a1[0], a1[1]];
+        const [type2, exp2] = [a2[0], a2[1]];
+        const match_env1 = new Env(env);
+        const match_env2 = new Env(env);
+        Log('matchのvariant:type1:exp1:type2:exp2', variant, type1, exp1, type2, exp2);
+        Log('env1:env2', match_env1, match_env2);
+        // type1のv.valueとしてセット
+        match_env1.set(Symbol.for(`${variant}.value`), 0);
+        // type2のv.valueとしてセット
+        match_env2.set(Symbol.for(`${variant}.value`), 0);
+        Log('env1:env2', match_env1, match_env2);
+        // expのvをv.valueに置換
+        const replace_variant = (exp) => {
+          if(Array.isArray(exp)){
+            return exp.map((e) => {
+              if(Array.isArray(e)) return replace_variant(e);
+              else if(e === Symbol.for(variant)) return Symbol.for(`${variant}.value`);
+              else return e;
+            });
+          } else {
+            return exp;
+          }
+        };
+        const exp1_replaced = replace_variant(exp1);
+        const exp2_replaced = replace_variant(exp2);
+        const code = `if ${variant}.type == 0 then ${EVAL(exp1_replaced, match_env1)} else ${EVAL(exp2_replaced, match_env2)} fi`;
+        return code;
       }
       default: {
         // const [fn, ...args] = eval_ast(ast, env);
