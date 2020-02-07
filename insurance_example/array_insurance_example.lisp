@@ -1,17 +1,6 @@
-(define  ((| field void) search_place)
-  (lambda (field longi field lati field search_longi field search_lati)
-    (let (bool found false)
-      (for (i 0 1000)
-        (if (&& !found (&& (= longi[i] search_longi) (= lati[i] search_lati)))
-          (true)
-
-        )
-
-      )      
-    )
-
-
-
+(define variant search_place
+  (lambda (field longi field lati field searching_longi field searching_lati)
+    (for-each 
       (lambda (longi lati)
         (if (&& (= longi denger_place_longi) (= lati denger_place_lati))
           (return (define (int) index))
