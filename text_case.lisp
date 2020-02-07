@@ -77,15 +77,17 @@
 (+ 1 (+ 2 false)) ;typeof '+' param is 'field', but typeof arg is 'bool'
 (let (field a 1) (+ a 2))
 (let (bool a false) (+ a 2)) ;typeof + param is 'field', but typeof arg is 'bool'
-;(define (field add) (lambda (field a field b) (+ a b))) してから
+
+;関数の引数の型チェック
+(define (field add) (lambda (field a field b) (+ a b)))
 (+ (add 1 2) 3)
 (let (field a 1) (+ a (add 2 3)))
 (add 1 2)
 (add 1 false) ;typeof 'add' param is 'field', but typeof arg is 'bool'
 
 ;オペランドに関数が入るときのチェック
-(define (bool add) (lambda (field a field b) false))
-(+ (add 1 2) 3) ;typeof '+' param is 'field', but typeof arg is 'bool'
+(define (bool foo) (lambda () false))
+(+ (foo) 3) ;typeof '+' param is 'field', but typeof arg is 'bool'
 (let (field a 1) (+ a (add 2 3))) ;typeof '+' param is 'field', but typeof arg is 'bool'
 
 ;引数の個数のチェック
@@ -125,7 +127,7 @@
 
 
 
-
+(define (bool add) (lambda () false))
 
 
 
