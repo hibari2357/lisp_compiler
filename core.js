@@ -2,32 +2,32 @@ const {pr_str} = require('./printer.js');
 
 const ns = {
   '+': {
-    value: (a, b) => `(${a} + ${(b)})`,
+    value: (a, b) => `(${a} + ${b})`,
     type: 'field',
     params_type: ['field', 'field'],
   },
   '-': {
-    value: (a, b) => `(${a} - ${(b)})`,
+    value: (a, b) => `(${a} - ${b})`,
     type: 'field',
     params_type: ['field', 'field'],
   },
   '*': {
-    value: (a, b) => `(${a} * ${(b)})`,
+    value: (a, b) => `(${a} * ${b})`,
     type: 'field',
     params_type: ['field', 'field'],
   },
   '/': {
-    value: (a, b) => `(${a} / ${(b)})`,
+    value: (a, b) => `(${a} / ${b})`,
     type: 'field',
     params_type: ['field', 'field'],
   },
   '&&': {
-    value: (a, b) => `(${a} && ${(b)})`,
+    value: (a, b) => `(${a} && ${b})`,
     type: 'bool',
     params_type: ['bool', 'bool'],
   },
   '||': {
-    value: (a, b) => `(${a} || ${(b)})`,
+    value: (a, b) => `(${a} || ${b})`,
     type: 'bool',
     params_type: ['bool', 'bool'],
   },
@@ -42,7 +42,7 @@ const ns = {
   // 'count': (a) => a === null ? 0 : a.length,
 
   '=': {
-    value: (a, b) => `(${a} == ${(b)})`,
+    value: (a, b) => `(${a} == ${b})`,
     type: 'bool',
     params_type: ['field', 'field'],
   },

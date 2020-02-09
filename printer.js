@@ -16,6 +16,7 @@ const pr_str = (obj) => {
   }
   else {
     Log('obj.toString()', obj.toString());
+    Log('typeof obj', typeof obj);
     return obj.toString();
   }
 };
