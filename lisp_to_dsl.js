@@ -17,7 +17,6 @@ const PRINT = pr_str;
 // const rep = (str) => PRINT(EVAL(READ(str), repl_env));
 const rep = (str) => {
   const r = READ(str);
-  Log('AST', r);
   return PRINT(EVAL(r, repl_env));
 };
 
@@ -28,8 +27,6 @@ Object.keys(ns).forEach((key) => {
 });
 
 const EVAL = (ast, env) => {
-  Log('ast in EVAL', ast);
-  // if(!Array.isArray(ast)) return eval_ast(ast);
   if(!Array.isArray(ast)) return typeof ast === 'symbol'? env.get(ast).value : String(ast);
   else if(ast.length === 0) return ast;
   // apply section
@@ -37,16 +34,11 @@ const EVAL = (ast, env) => {
     const [sym, a0, a1, a2] = ast;
     switch(typeof sym === 'symbol' ? Symbol.keyFor(sym) : Symbol(':default')){
       case 'define': {
-        Log('defineの中', sym, a0, a1, a2);
         const fn_type = a0[0];
         const label = a0[1];
         const exp = a1;
         if(Array.isArray(exp) && Symbol.keyFor(exp[0]) == 'lambda'){
           const [params, exp_str] = EVAL(exp, env);
-          Log('define lambda', params, exp_str);
-
-
-          Log('defineのtypeとlabel', fn_type, label);
           const define_obj = {
             // 関数呼び出しがあったときに出力するコードをset
             value: (...args)=>`${Symbol.keyFor(label)}(${args.join(', ')})`,
@@ -64,7 +56,6 @@ const EVAL = (ast, env) => {
           }
 
           env.set(label, define_obj);
-          Log('defineでsetしたもの', env);
           return code_gen_define(fn_type, label, params, exp_str);
         }
       }
@@ -76,7 +67,6 @@ const EVAL = (ast, env) => {
         // インタープリタでは宣言時に評価されないが、コンパイラなのでパラメータ以外の変数が使われていなか
         // チェックするために適当な初期値(Array(params.length))->undefの配列をいれてenv.setしておく
         const exp_str = EVAL(exp, new Env(env, params, Array(params.length/2)));
-        Log('zokEXPinLambda', exp_str);
         return [params, exp_str];
       }
       case 'do': {
@@ -105,7 +95,6 @@ const EVAL = (ast, env) => {
           } else {
             // 初期値がオペレータ、関数の場合
             let typeof_initial_value;
-            Log('オペレータ、関数が初期値のlet:type', type);
             if(Array.isArray(initial_value)){
               typeof_initial_value = let_env.get(initial_value[0]).type;
             } else {
@@ -137,7 +126,6 @@ const EVAL = (ast, env) => {
           // bindingsのvalueをevalしたstrに置き換え
           bindings[i+2] = value_str;
         }
-        Log('let_env', let_env);
         const exp_str = EVAL(exp, let_env);
         return code_gen_let(bindings, exp_str);
       }
@@ -147,8 +135,6 @@ const EVAL = (ast, env) => {
         const [type2, exp2] = [a2[0], a2[1]];
         const match_env1 = new Env(env);
         const match_env2 = new Env(env);
-        Log('matchのvariant:type1:exp1:type2:exp2', variant, type1, exp1, type2, exp2);
-        Log('env1:env2', match_env1, match_env2);
         // ほんとはtypeに合わせた型でenv.setする必要がある
         // type1のv.valueとしてセット
         match_env1.set(Symbol.for(`${variant}.value`), {
@@ -163,7 +149,6 @@ const EVAL = (ast, env) => {
           params_type: [],
         });
  
-        Log('env1:env2', match_env1, match_env2);
         // expのvをv.valueに置換
         const replace_variant = (exp) => {
           if(Array.isArray(exp)){
@@ -186,11 +171,9 @@ const EVAL = (ast, env) => {
         // 上記以外のときは最初のsymbolが基本演算子か、defineした関数
         const [fn, ...args] = ast.map((a) => EVAL(a, env));
         const [label, ...args_ast] = ast;
-        Log('関数コール時の引数', label, args_ast);
 
         //これ1変数しかとらないとき落ちますね...
         const fn_params_type = env.get(label).params_type;
-        Log('関数呼び出しのパラメータの型', fn_params_type, env);
         if(args_ast.length !== fn_params_type.length) throw new Error(`'${Symbol.keyFor(sym)}' takes ${fn_params_type.length} params, but given ${args_ast.length}`);
         for(let i=0; i<fn_params_type.length; i++){
           const arg = args_ast[i];

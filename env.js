@@ -14,11 +14,9 @@ class Env {
         params_type: [],
       });
     }
-    Log('Env コンストラクター', binds, exprs, this);
   }
 
   set(key, val){
-    Log('Env.set', key, JSON.stringify(val));
     if(typeof val.value === 'function'){
       this.data[key] = val;
     } else {

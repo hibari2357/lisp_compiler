@@ -3,7 +3,6 @@ const Log = (...val) => {
 };
 
 const code_gen_let = (bindings, exp) => {
-  Log('bindings', bindings);
   const parsed_bindings = bindings.map((b, idx) => {
     if(idx%3==0) {
       // ヴァリアント型宣言の場合

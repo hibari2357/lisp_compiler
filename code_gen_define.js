@@ -27,8 +27,6 @@ const variant_replace = (exp_str) => {
 
 
 const code_gen_define = (return_type, fn_name, params, exp_str) => {
-  Log('code_gen_define:type:name:params:exp', return_type, fn_name, params, exp_str);
-
   // 関数の引数のパース
   const parsed_params = params.map((p, idx) => {
     if(idx%2==0) return Symbol.keyFor(params[idx]) + ' ' + Symbol.keyFor(params[idx+1]);

@@ -4,7 +4,6 @@ const Log = (...val) => {
 
 
 const pr_str = (obj) => {
-  Log('obj in pr_str', obj);
   if(Array.isArray(obj)){
     return '(' + obj.map((item) => pr_str(item)).join(' ') + ')';
   }
@@ -15,8 +14,6 @@ const pr_str = (obj) => {
     return 'nil';
   }
   else {
-    Log('obj.toString()', obj.toString());
-    Log('typeof obj', typeof obj);
     return obj.toString();
   }
 };

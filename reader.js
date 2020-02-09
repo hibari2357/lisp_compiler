@@ -20,7 +20,6 @@ class Reader {
 
 const read_str = (str) => {
   const tokens = tokenize(str);
-  Log('tokens', tokens);
   return read_form(new Reader(tokens));
 };
 

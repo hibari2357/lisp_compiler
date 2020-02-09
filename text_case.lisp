@@ -1,3 +1,4 @@
+;リテラル
 1
 ;=> '1'
 100
@@ -7,27 +8,28 @@ true
 false
 ;=> false
 
-
-; branch no-type-define
+;演算
 (+ 1 2)
 (+ 1 (* 2 (+ 3 4)))
-(define a 1)
-(+ a 2)
-(define add (lambda (a b) (+ a b)))
-(define add (lambda (a b c) (+ a (* c b))))
-(define add (lambda (a) (+ a b)))
 
-; branch typed-define
-(define (field add) (lambda (field a field b) (+ a b)))
-(define (field add) (lambda (field a field b field c) (+ a (* b c))))
-(define (bool equal) (lambda (field a field b) (= a b)))
+; branch no-type-define
+; (define a 1)
+; (+ a 2)
+; (define add (lambda (a b) (+ a b)))
+; (define add (lambda (a b c) (+ a (* c b))))
+; (define add (lambda (a) (+ a b)))
 
-; call function define addをしてから
-(add 1 2)
-(minus 1 2)
-; (define a 1), (define b 2)をやってから
-(add a b)
-(add a c)
+; ; branch typed-define
+; (define (field add) (lambda (field a field b) (+ a b)))
+; (define (field add) (lambda (field a field b field c) (+ a (* b c))))
+; (define (bool equal) (lambda (field a field b) (= a b)))
+
+; ; call function define addをしてから
+; (add 1 2)
+; (minus 1 2)
+; ; (define a 1), (define b 2)をやってから
+; (add a b)
+; (add a c)
 
 ;let
 (let (field a 1 field b 2) (+ a b))
